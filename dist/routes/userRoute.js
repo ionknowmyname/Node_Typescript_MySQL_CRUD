@@ -4,21 +4,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const mysql_1 = __importDefault(require("mysql"));
+const bcrypt_1 = __importDefault(require("bcrypt"));
+const dbConnection_1 = __importDefault(require("../config/dbConnection"));
+const generateToken_1 = __importDefault(require("../config/generateToken"));
+const saltround = 10;
 const userRouter = (0, express_1.Router)();
 userRouter.get('/', (req, res) => {
     return res.json("OK");
 });
 userRouter.get('/details/:id', (req, res) => {
-    var pool = mysql_1.default.createPool({
-        host: process.env.HOST,
-        user: process.env.USER,
-        password: process.env.PASSWORD,
-        database: process.env.DATABASE,
-        connectionLimit: 10,
-        multipleStatements: true
-    });
-    pool.getConnection((err, conn) => {
+    dbConnection_1.default.getConnection((err, conn) => {
         if (err) {
             console.log('Entered an error: ', err);
             res.send({
@@ -53,16 +48,8 @@ userRouter.get('/details/:id', (req, res) => {
         });
     });
 });
-userRouter.post('/register/', (req, res) => {
-    var pool = mysql_1.default.createPool({
-        host: process.env.HOST,
-        user: process.env.USER,
-        password: process.env.PASSWORD,
-        database: process.env.DATABASE,
-        connectionLimit: 10,
-        multipleStatements: true
-    });
-    pool.getConnection((err, conn) => {
+userRouter.post('/register', (req, res) => {
+    dbConnection_1.default.getConnection((err, conn) => {
         if (err) {
             console.log('Entered an error: ', err);
             res.send({
@@ -72,9 +59,51 @@ userRouter.post('/register/', (req, res) => {
             });
             return;
         }
-        console.log('req.body: ' + req.body);
-        let sqlQuery = `call registeruser(?,?,?)`;
-        conn.query(sqlQuery, [req.body.email, req.body.phone, req.body.password], (err, rows) => {
+        bcrypt_1.default.hash(req.body.password, saltround, (error, hash) => {
+            if (error) {
+                console.log('Entered an error: ', error);
+                res.send({
+                    success: false,
+                    statusCode: 500,
+                    message: 'Error during password encryption'
+                });
+                return;
+            }
+            else {
+                // console.log('req.body: ' + req.body);
+                let sqlQuery = `call registeruser(?,?,?)`;
+                conn.query(sqlQuery, [req.body.email, req.body.phone, hash], (err, rows) => {
+                    if (err) {
+                        console.log('Encountered an error: ', err);
+                        conn.release();
+                        return res.send({
+                            success: false,
+                            statusCode: 400
+                        });
+                    }
+                    res.send({
+                        message: 'Successul',
+                        statusCode: 200,
+                        // data: rows
+                    });
+                    conn.release(); // close connection
+                });
+            }
+        });
+    });
+});
+userRouter.post('/login', (req, res) => {
+    dbConnection_1.default.getConnection((err, conn) => {
+        if (err) {
+            console.log('Entered an error: ', err);
+            res.send({
+                success: false,
+                statusCode: 500,
+                message: 'Error during connection'
+            });
+            return;
+        }
+        dbConnection_1.default.query('SELECT password FROM users WHERE email=?', [req.body.email], (err, rows) => {
             if (err) {
                 console.log('Encountered an error: ', err);
                 conn.release();
@@ -83,10 +112,30 @@ userRouter.post('/register/', (req, res) => {
                     statusCode: 400
                 });
             }
-            res.send({
-                message: 'Successul',
-                statusCode: 200,
-                // data: rows
+            console.log("hashed password from DB --> " + rows[0].password);
+            const passwordfromDB = rows[0].password;
+            bcrypt_1.default.compare(req.body.password, passwordfromDB, (err, result) => {
+                if (err) {
+                    res.send({
+                        message: "Failed",
+                        statusCode: 500,
+                        data: err
+                    });
+                }
+                if (result) {
+                    res.send({
+                        message: "Success",
+                        statusCode: 200,
+                        data: { token: (0, generateToken_1.default)(req.body.email) }
+                    });
+                }
+                else {
+                    res.send({
+                        message: "Failed",
+                        statusCode: 500,
+                        data: err
+                    });
+                }
             });
             conn.release(); // close connection
         });
