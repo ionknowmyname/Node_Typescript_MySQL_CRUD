@@ -3,16 +3,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
+const express_1 = require("express");
 const mysql_1 = __importDefault(require("mysql"));
-const dotenv_1 = __importDefault(require("dotenv"));
-const routes_1 = __importDefault(require("./routes"));
-dotenv_1.default.config();
-const app = (0, express_1.default)();
-app.use(express_1.default.urlencoded({ extended: true }));
-app.use(express_1.default.json());
-app.use(routes_1.default);
-app.get('/details/:id', (req, res, next) => {
+const userRouter = (0, express_1.Router)();
+userRouter.get('/', (req, res) => {
+    return res.json("OK");
+});
+userRouter.get('/details/:id', (req, res) => {
     var pool = mysql_1.default.createPool({
         host: process.env.HOST,
         user: process.env.USER,
@@ -56,7 +53,7 @@ app.get('/details/:id', (req, res, next) => {
         });
     });
 });
-app.post('/register/', (req, res) => {
+userRouter.post('/register/', (req, res) => {
     var pool = mysql_1.default.createPool({
         host: process.env.HOST,
         user: process.env.USER,
@@ -95,16 +92,4 @@ app.post('/register/', (req, res) => {
         });
     });
 });
-app.post('/id/:id/name/:name', (req, res) => {
-    res.send({
-        data: req.body,
-        params: {
-            id: req.params.id,
-            name: req.params.name
-        }
-    });
-});
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`server started on port ${PORT}`);
-});
+exports.default = userRouter;

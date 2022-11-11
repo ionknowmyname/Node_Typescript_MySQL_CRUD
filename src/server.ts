@@ -2,12 +2,15 @@ import express, { Request, Response, NextFunction } from 'express';
 import mysql from 'mysql';
 import dotenv from 'dotenv'
 
+import routes from './routes'; 
+
 dotenv.config();
 
 const app = express();
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(routes);
 
 app.get('/details/:id', (req: Request, res: Response, next: NextFunction) => {
 
