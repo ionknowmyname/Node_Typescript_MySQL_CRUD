@@ -7,12 +7,13 @@ const express_1 = require("express");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const dbConnection_1 = __importDefault(require("../config/dbConnection"));
 const generateToken_1 = __importDefault(require("../config/generateToken"));
+const authentication_1 = __importDefault(require("../config/authentication"));
 const saltround = 10;
 const userRouter = (0, express_1.Router)();
 userRouter.get('/', (req, res) => {
     return res.json("OK");
 });
-userRouter.get('/details/:id', (req, res) => {
+userRouter.get('/details/:id', authentication_1.default, (req, res) => {
     dbConnection_1.default.getConnection((err, conn) => {
         if (err) {
             console.log('Entered an error: ', err);

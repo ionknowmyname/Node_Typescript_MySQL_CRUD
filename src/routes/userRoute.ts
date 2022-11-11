@@ -3,6 +3,7 @@ import mysql from 'mysql';
 import bcrypt from 'bcrypt';
 import pool from '../config/dbConnection';
 import generateToken from '../config/generateToken';
+import authenticate from '../config/authentication';
 
 
 const saltround = 10;
@@ -12,7 +13,7 @@ userRouter.get('/', (req: Request, res: Response) => {
     return res.json("OK");
 });
 
-userRouter.get('/details/:id', (req: Request, res: Response) => { // , next: NextFunction 
+userRouter.get('/details/:id', authenticate, (req: Request, res: Response) => { // , next: NextFunction 
   
     pool.getConnection((err: any, conn: any) => {
         if(err){

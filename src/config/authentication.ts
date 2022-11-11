@@ -21,7 +21,7 @@ const authenticate: any = (req: Request, res: Response, next: NextFunction) => {
             } else {
                 (<any>req).user = value.data;
                 console.log("(<any>req).user: " + (<any>req).user);
-                
+                next()
             }
         });
     }

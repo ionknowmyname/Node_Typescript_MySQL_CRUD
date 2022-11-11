@@ -26,6 +26,7 @@ const authenticate = (req, res, next) => {
             else {
                 req.user = value.data;
                 console.log("(<any>req).user: " + req.user);
+                next();
             }
         });
     }
