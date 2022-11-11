@@ -8,7 +8,7 @@ userRouter.get('/', (req: Request, res: Response) => {
     return res.json("OK");
 });
 
-userRouter.get('/details/:id', (req: Request, res: Response) => { // , next: NextFunction
+userRouter.get('/details/:id', (req: Request, res: Response) => { // , next: NextFunction 
 
     var pool = mysql.createPool({
       host: process.env.HOST,
