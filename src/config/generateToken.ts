@@ -6,7 +6,7 @@ dotenv.config();
 
 const generateToken: any = function generate(user: any) {
     const tokenSecret: string = 'my-token-secret';
-    return jwt.sign({ data: user }, tokenSecret, { expiresIn: process.env.EXPIRESIN});
+    return jwt.sign({ data: user }, tokenSecret, { expiresIn: process.env.EXPIRESIN });
 }
 
 export default generateToken;

@@ -13,8 +13,8 @@ userRouter.get('/', (req: Request, res: Response) => {
     return res.json("OK");
 });
 
-userRouter.get('/details/:id', authenticate, (req: Request, res: Response) => { // , next: NextFunction 
-  
+userRouter.get('/all', authenticate, (req: Request, res: Response) => {
+
     pool.getConnection((err: any, conn: any) => {
         if(err){
             console.log('Entered an error: ', err);
@@ -26,10 +26,9 @@ userRouter.get('/details/:id', authenticate, (req: Request, res: Response) => { 
             
             return;
         }
-  
-        console.log('id from req.params: ' + req.params.id);
-  
-        conn.query('SELECT * FROM customers WHERE customerNumber=?', [req.params.id], (err: any, rows: any) => {
+
+        const sqlQuery = 'SELECT id, email, phone, createdAt FROM users';
+        pool.query(sqlQuery, (err: any, rows: any) => {
             if(err){
                 console.log('Encountered an error: ', err);
                 conn.release();
@@ -40,7 +39,7 @@ userRouter.get('/details/:id', authenticate, (req: Request, res: Response) => { 
                 });      
             }
     
-            if(rows.length < 1){
+            if(rows.length < 1){  // DB table is empty
                 return res.send({
                     message: 'Data not found',
                     statusCode: 404,
@@ -55,9 +54,8 @@ userRouter.get('/details/:id', authenticate, (req: Request, res: Response) => { 
     
             conn.release();   // close connection
         });
-      
     });
-}); 
+});
   
 userRouter.post('/register', (req: Request, res: Response) => {
   

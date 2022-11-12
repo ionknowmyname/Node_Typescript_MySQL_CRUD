@@ -13,7 +13,7 @@ const userRouter = (0, express_1.Router)();
 userRouter.get('/', (req, res) => {
     return res.json("OK");
 });
-userRouter.get('/details/:id', authentication_1.default, (req, res) => {
+userRouter.get('/all', authentication_1.default, (req, res) => {
     dbConnection_1.default.getConnection((err, conn) => {
         if (err) {
             console.log('Entered an error: ', err);
@@ -24,8 +24,8 @@ userRouter.get('/details/:id', authentication_1.default, (req, res) => {
             });
             return;
         }
-        console.log('id from req.params: ' + req.params.id);
-        conn.query('SELECT * FROM customers WHERE customerNumber=?', [req.params.id], (err, rows) => {
+        const sqlQuery = 'SELECT id, email, phone, createdAt FROM users';
+        dbConnection_1.default.query(sqlQuery, (err, rows) => {
             if (err) {
                 console.log('Encountered an error: ', err);
                 conn.release();
@@ -34,7 +34,7 @@ userRouter.get('/details/:id', authentication_1.default, (req, res) => {
                     statusCode: 400
                 });
             }
-            if (rows.length < 1) {
+            if (rows.length < 1) { // DB table is empty
                 return res.send({
                     message: 'Data not found',
                     statusCode: 404,
