@@ -37,6 +37,8 @@ customerRouter.get('/details/:id', authenticate, (req: Request, res: Response) =
             }
     
             if(rows.length < 1){   // selected customerNumber dont exist
+                conn.release();
+                
                 return res.send({
                     message: 'Data not found',
                     statusCode: 404,

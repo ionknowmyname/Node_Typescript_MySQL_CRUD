@@ -41,7 +41,7 @@ userRouter.get('/all', authenticate, (req: Request, res: Response) => {
     
             if(rows.length < 1){  // DB table is empty
                 return res.send({
-                    message: 'Data not found',
+                    message: 'No Data found',
                     statusCode: 404,
                 });
             }
@@ -83,7 +83,7 @@ userRouter.post('/register', (req: Request, res: Response) => {
                 return;
             } else {
                 // console.log('req.body: ' + req.body);
-                let sqlQuery = `call registeruser(?,?,?)`;
+                let sqlQuery = `call registeruser(?,?,?)`;  // stored procedure on phpmyadmin
         
                 conn.query(sqlQuery, [req.body.email, req.body.phone, hash], (err: any, rows: any) => {
                     if(err){

@@ -32,6 +32,7 @@ customerRouter.get('/details/:id', authentication_1.default, (req, res) => {
                 });
             }
             if (rows.length < 1) { // selected customerNumber dont exist
+                conn.release();
                 return res.send({
                     message: 'Data not found',
                     statusCode: 404,
