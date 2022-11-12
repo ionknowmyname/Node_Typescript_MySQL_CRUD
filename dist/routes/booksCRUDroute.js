@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
+const axios_1 = __importDefault(require("axios"));
 const dbConnection_1 = __importDefault(require("../config/dbConnection"));
 const authentication_1 = __importDefault(require("../config/authentication"));
 var cacheService = require("express-api-cache");
@@ -232,6 +233,28 @@ CRUDrouter.delete('/delete/:isbn', authentication_1.default, (req, res) => {
             });
             conn.release(); // close connection           
         });
+    });
+});
+//////////////////// BULK ADD BOOKS ///////////////////////////
+CRUDrouter.post('/add-bulk', authentication_1.default, (req, res) => {
+    for (let i = 17; i < 25; i++) {
+        axios_1.default.post('http://localhost:5000/books/add', {
+            // isbn: `${i.toString().repeat(10)}`,
+            isbn: `5555${i++}66666`,
+            title: `Test title ${i++}`,
+            author: `Test Author ${i++}`,
+            yearPublished: 2022
+        })
+            .then((response) => {
+            console.log('response from axios -->' + response);
+        })
+            .catch((error) => {
+            console.log('error from axios -->' + error);
+        });
+    }
+    res.send({
+        message: 'Success',
+        statusCode: 200,
     });
 });
 exports.default = CRUDrouter;

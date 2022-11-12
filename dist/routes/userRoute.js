@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
+const axios_1 = __importDefault(require("axios"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const dbConnection_1 = __importDefault(require("../config/dbConnection"));
 const generateToken_1 = __importDefault(require("../config/generateToken"));
@@ -142,6 +143,26 @@ userRouter.post('/login', (req, res) => {
             });
             conn.release(); // close connection
         });
+    });
+});
+//////////////////// BULK ADD BOOKS ///////////////////////////
+userRouter.post('/register-bulk', authentication_1.default, (req, res) => {
+    for (let i = 10; i < 17; i++) {
+        axios_1.default.post('http://localhost:5000/users/register', {
+            email: `testbulk${i++}@gmail.com`,
+            phone: `44444${i++}9999`,
+            password: 'Testing123',
+        })
+            .then((response) => {
+            console.log('response from axios -->' + response);
+        })
+            .catch((error) => {
+            console.log('error from axios -->' + error);
+        });
+    }
+    res.send({
+        message: 'Success',
+        statusCode: 200,
     });
 });
 exports.default = userRouter;

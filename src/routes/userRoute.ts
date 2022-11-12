@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import mysql from 'mysql';
+import axios from 'axios';
 import bcrypt from 'bcrypt';
 import pool from '../config/dbConnection';
 import generateToken from '../config/generateToken';
@@ -166,6 +166,29 @@ userRouter.post('/login', (req: Request, res: Response) => {
             
             conn.release();  // close connection
         });           
+    });
+});
+
+//////////////////// BULK ADD BOOKS ///////////////////////////
+userRouter.post('/register-bulk', authenticate, (req: Request, res: Response) => { 
+    for (let i = 10; i < 17; i++) {
+        axios.post('http://localhost:5000/users/register', {
+            email: `testbulk${i++}@gmail.com`,
+            phone: `44444${i++}9999`,
+            password: 'Testing123',
+        })
+        .then((response) => {
+            console.log('response from axios -->' + response);    
+        })
+        .catch((error) => {
+            console.log('error from axios -->' + error);    
+        });
+        
+    }
+
+    res.send({
+        message: 'Success',
+        statusCode: 200,
     });
 });
 

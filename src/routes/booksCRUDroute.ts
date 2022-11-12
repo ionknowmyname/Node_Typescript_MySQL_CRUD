@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import axios from 'axios';
 import pool from '../config/dbConnection';
 import authenticate from '../config/authentication';
 var cacheService = require("express-api-cache");
@@ -10,6 +11,7 @@ const CRUDrouter = Router();
 CRUDrouter.get('/', (req: Request, res: Response) => {
     return res.json("OK");
 });
+
 
 //////////////////// GET ALL BOOKS ///////////////////////////
 CRUDrouter.get('/all', authenticate, cache("10 minutes"), (req: Request, res: Response) => {
@@ -294,5 +296,31 @@ CRUDrouter.delete('/delete/:isbn', authenticate, (req: Request, res: Response) =
       
     });
 }); 
+
+
+//////////////////// BULK ADD BOOKS ///////////////////////////
+CRUDrouter.post('/add-bulk', authenticate, (req: Request, res: Response) => { 
+    for (let i = 17; i < 25; i++) {
+        axios.post('http://localhost:5000/books/add', {
+            // isbn: `${i.toString().repeat(10)}`,
+            isbn: `5555${i++}66666`,
+            title: `Test title ${i++}`,
+            author: `Test Author ${i++}`,
+            yearPublished: 2022
+        })
+        .then((response) => {
+            console.log('response from axios -->' + response);    
+        })
+        .catch((error) => {
+            console.log('error from axios -->' + error);    
+        });
+        
+    }
+
+    res.send({
+        message: 'Success',
+        statusCode: 200,
+    });
+});
 
 export default CRUDrouter;
