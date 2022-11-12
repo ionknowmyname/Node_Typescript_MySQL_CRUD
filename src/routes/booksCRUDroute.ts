@@ -1,6 +1,8 @@
 import { Router, Request, Response } from 'express';
 import pool from '../config/dbConnection';
 import authenticate from '../config/authentication';
+var cacheService = require("express-api-cache");
+var cache = cacheService.cache;
 
 
 const CRUDrouter = Router();
@@ -10,7 +12,7 @@ CRUDrouter.get('/', (req: Request, res: Response) => {
 });
 
 //////////////////// GET ALL BOOKS ///////////////////////////
-CRUDrouter.get('/all', authenticate, (req: Request, res: Response) => {
+CRUDrouter.get('/all', authenticate, cache("10 minutes"), (req: Request, res: Response) => {
 
     pool.getConnection((err: any, conn: any) => {
         if(err){

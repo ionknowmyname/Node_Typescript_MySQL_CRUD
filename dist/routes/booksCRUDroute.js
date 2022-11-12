@@ -6,12 +6,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const dbConnection_1 = __importDefault(require("../config/dbConnection"));
 const authentication_1 = __importDefault(require("../config/authentication"));
+var cacheService = require("express-api-cache");
+var cache = cacheService.cache;
 const CRUDrouter = (0, express_1.Router)();
 CRUDrouter.get('/', (req, res) => {
     return res.json("OK");
 });
 //////////////////// GET ALL BOOKS ///////////////////////////
-CRUDrouter.get('/all', authentication_1.default, (req, res) => {
+CRUDrouter.get('/all', authentication_1.default, cache("10 minutes"), (req, res) => {
     dbConnection_1.default.getConnection((err, conn) => {
         if (err) {
             console.log('Entered an error: ', err);

@@ -4,6 +4,8 @@ import bcrypt from 'bcrypt';
 import pool from '../config/dbConnection';
 import generateToken from '../config/generateToken';
 import authenticate from '../config/authentication';
+var cacheService = require("express-api-cache");
+var cache = cacheService.cache;
 
 
 const saltround = 10;
@@ -13,7 +15,7 @@ userRouter.get('/', (req: Request, res: Response) => {
     return res.json("OK");
 });
 
-userRouter.get('/all', authenticate, (req: Request, res: Response) => {
+userRouter.get('/all', authenticate, cache("10 minutes"), (req: Request, res: Response) => {
 
     pool.getConnection((err: any, conn: any) => {
         if(err){
